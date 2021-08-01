@@ -7,8 +7,10 @@
     <title>{{server.name}} | {{channel.name}}</title>
     <script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
     <script
+      defer
       type="text/javascript"
-      src="{{ url_for('static', filename = 'client.js') }}"></script>
+      src="{{ url_for('static', filename = 'client.js') }}"
+    ></script>
   </head>
   <body>
     <h1>{{server.name}} | {{channel.name}}</h1>
@@ -16,24 +18,23 @@
     {% if messages == None %}
     <p>No messages.</p>
     {% else %}
-        {% for message in messages %}
-            <p>{{message.messenger}}</p>
-            <p>{{message.message}}</p>
-        {% endfor %}
-      </tbody>
-    </table>
+    <ul>
+      {% for message in messages %}
+      <li>{{message.messenger}}</li>
+      <li>{{message.message}}</li>
+      {% endfor %}
+    </ul>
     {% endif %}
-    <!-- <form action="/server/{{server.id}}/channel/{{channel.id}}/message" method="POST"> -->
-      <!-- <input type="hidden" name="server" value="{{server.id}}" id="server">
-        <input type="hidden" name="channel" value="{{channel.id}}" id="channel"> -->
-      <input
-        type="hidden"
-        name="username"
-        value="{{current_user.username}}"
-        id="username"
-      />
-      <input type="text" name="message" id="message" />
-      <button type="submit" id="send">Send</button>
-    <!-- </form>  -->
+    <ul></ul>
+    <input type="hidden" id="server_id" value="{{server.id}}">
+    <input type="hidden" id="channel_id" value="{{channel.id}}">
+    <input
+      type="hidden"
+      name="username"
+      value="{{current_user.username}}"
+      id="username"
+    />
+    <input type="text" name="message" id="message" />
+    <button type="submit" id="send">Send</button>
   </body>
 </html>

@@ -140,8 +140,9 @@ def channel(server_id, channel_id):
 @app.route('/server/<int:server_id>/channel/<int:channel_id>/message', methods=['POST'])
 @login_required
 def add_message(server_id, channel_id):
-    message = request.form['message']
-    messenger = current_user.username
+    data = request.get_json()
+    message = data['message']
+    messenger = data['username']
     new = Message(channel_id = channel_id , message=message, messenger=messenger)
     db.session.add(new)
     db.session.commit()

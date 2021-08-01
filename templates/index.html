@@ -7,6 +7,22 @@
     <title>Cloning...</title>
 </head>
 <body>
-    
+    <h1>{{current_user.username}}</h1>
+    <form action="/add_server" method="POST">
+        <input type="text" name="name" placeholder="Enter the name of the server">
+        <input type="text" name="about" placeholder="Enter a about for the server">
+        <button>add</button>
+    </form>
+    {% if server == 'none' %}
+        <p>No server till now</p>
+    {% else %}
+        {% for s in server %}
+            <h2>{{s.name}}</h2>
+            <p>{{s.about}}</p>
+            <p>
+                <a href="/remove_server/{{s.id}}">remove</a>
+            </p>
+        {% endfor %}
+    {% endif %}
 </body>
 </html>

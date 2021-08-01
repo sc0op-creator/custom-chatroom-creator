@@ -137,7 +137,7 @@ def channel(server_id, channel_id):
     else:
         return 'Channel not found'
 
-@app.route('/server/<int:server_id>/channel/<int:channel_id>/message', methods=['POST'])
+@app.route('/server/<string:server_id>/channel/<string:channel_id>/message', methods=['POST'])
 @login_required
 def add_message(server_id, channel_id):
     data = request.get_json()

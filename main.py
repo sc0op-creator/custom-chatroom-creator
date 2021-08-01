@@ -1,4 +1,4 @@
-from flask import Flask , render_template, request, jsonify, redirect, url_for
+from flask import Flask , render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -14,28 +14,26 @@ login_manager.login_view = '/'
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), unique=False, nullable=False)
+    username = db.Column(db.String(80))
+    password = db.Column(db.String(120))
 
 class Server(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
-    about = db.Column(db.String(120), unique=False, nullable=False)
-    owner = db.Column(db.Integer, unique=False, nullable=False)
+    name = db.Column(db.String(80))
+    about = db.Column(db.String(120))
+    owner = db.Column(db.Integer)
 
 class Channel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer)
-    name = db.Column(db.String(80), unique=True, nullable=False)
-    about = db.Column(db.String(120), unique=False, nullable=False)
+    name = db.Column(db.String(80))
+    about = db.Column(db.String(120))
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    server_id = db.Column(db.Integer)
     channel_id = db.Column(db.Integer)
-    message = db.Column(db.String(120), unique=False, nullable=False)
-    timestamp = db.Column(db.String(120), unique=False, nullable=False)
-    messenger = db.Column(db.String(120), unique=False, nullable=False)
+    message = db.Column(db.String(120))
+    messenger = db.Column(db.String(120))
 
 db.create_all()
 
@@ -138,6 +136,16 @@ def channel(server_id, channel_id):
             return render_template('channel.html', server=server, channel=channel, messages=messages)
     else:
         return 'Channel not found'
+
+@app.route('/server/<int:server_id>/channel/<int:channel_id>/message', methods=['POST'])
+@login_required
+def add_message(server_id, channel_id):
+    message = request.form['message']
+    messenger = current_user.username
+    new = Message(channel_id = channel_id , message=message, messenger=messenger)
+    db.session.add(new)
+    db.session.commit()
+    return redirect(url_for('channel', server_id=server_id, channel_id=channel_id))
 
 @app.route('/logout')
 @login_required

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{server.name}} | {{channel.name}}</title>
+</head>
+<body>
+    <h1>{{server.name}} | {{channel.name}}</h1>
+    <p>{{channel.about}}</p>
+    {% if messages == None %}
+        <p>No messages.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Author</th>
+                    <th>Content</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for message in messages %}
+                    <tr>
+                        <td>{{message.time}}</td>
+                        <td>{{message.author}}</td>
+                        <td>{{message.content}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</body>
+</html>

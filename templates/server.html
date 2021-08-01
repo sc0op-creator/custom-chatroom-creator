@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{server.name}}</title>
+</head>
+<body>
+    <h1>{{server.name}}</h1>
+    <p>{{server.about}}</p>
+    {% if channel == None %}
+        <p>No channel selected</p>
+    {% else %}
+        {% for c in channel %}
+            <h1><a href="/server/{{server.id}}/channel/{{c.id}}">{{c.name}}</a></h1>
+            <p>{{c.about}}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form action="/add_channel/{{server.id}}" method="POST">
+        <input type="text" name="channel" placeholder="Channel Name">
+        <input type="text" name="about" placeholder="About">
+        <input type="submit" value="Add Channel">
+    </form>
+</body>
+</html>

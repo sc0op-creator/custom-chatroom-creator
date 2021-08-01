@@ -13,25 +13,29 @@ login_manager.init_app(app)
 login_manager.login_view = '/'
 
 class User(db.Model, UserMixin):
-    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), unique=False, nullable=False)
-    servers = db.relationship('Server', backref='user', lazy=True)
 
 class Server(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     name = db.Column(db.String(80), unique=True, nullable=False)
     about = db.Column(db.String(120), unique=False, nullable=False)
-    owner = db.Column(db.String(120), unique=False, nullable=False)
+    owner = db.Column(db.Integer, unique=False, nullable=False)
 
-# class Channel(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     server_id = db.Column(db.Integer, db.ForeignKey('server.id'))
-#     name = db.Column(db.String(80), unique=True, nullable=False)
-#     about = db.Column(db.String(120), unique=False, nullable=False)
-#     owner = db.Column(db.String(120), unique=False, nullable=False)
+class Channel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    about = db.Column(db.String(120), unique=False, nullable=False)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer)
+    channel_id = db.Column(db.Integer)
+    message = db.Column(db.String(120), unique=False, nullable=False)
+    timestamp = db.Column(db.String(120), unique=False, nullable=False)
+    messenger = db.Column(db.String(120), unique=False, nullable=False)
 
 db.create_all()
 
@@ -46,7 +50,7 @@ def auth():
 @app.route('/home')
 @login_required
 def home():
-    server = Server.query.all()
+    server = Server.query.filter_by(owner=current_user.id).all()
     if server: 
         server = server 
     else: 
@@ -82,9 +86,8 @@ def login():
 def add_server():
     name = request.form['name']
     about = request.form['about']
-    owner = current_user.username
-    user_id = current_user.id
-    server = Server(user_id=user_id, name=name, about=about, owner=owner)
+    owner = current_user.id
+    server = Server(name=name, about=about, owner=owner)
     db.session.add(server)
     db.session.commit()
     return redirect(url_for('home'))
@@ -96,6 +99,45 @@ def remove_server(id):
     db.session.delete(server)
     db.session.commit()
     return redirect(url_for('home'))
+
+@app.route('/server/<int:id>')
+@login_required
+def server(id):
+    server = Server.query.filter_by(id=id).first()
+    if server:
+        channel = Channel.query.filter_by(server_id=id).all()
+        if channel: 
+            return render_template('server.html', server=server, channel=channel)
+        else:
+            channel = None
+            return render_template('server.html', server=server, channel=channel)
+    else:
+        return 'Server not found'
+
+@app.route('/add_channel/<int:id>', methods=['POST'])
+@login_required
+def add_channel(id):
+    channel = request.form['channel']
+    about = request.form['about']
+    new = Channel(name = channel, about = about, server_id = id)
+    db.session.add(new)
+    db.session.commit()
+    return redirect(url_for('server', id=id))
+
+@app.route('/server/<int:server_id>/channel/<int:channel_id>')
+@login_required
+def channel(server_id, channel_id):
+    server = Server.query.filter_by(id=server_id).first()
+    channel = Channel.query.filter_by(id=channel_id).first()
+    if server and channel:
+        messages = Message.query.filter_by(channel_id=channel_id).all()
+        if messages:
+            return render_template('channel.html', server=server, channel=channel, messages=messages)
+        else:
+            messages = None
+            return render_template('channel.html', server=server, channel=channel, messages=messages)
+    else:
+        return 'Channel not found'
 
 @app.route('/logout')
 @login_required

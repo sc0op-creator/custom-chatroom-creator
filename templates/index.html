@@ -17,7 +17,7 @@
         <p>No server till now</p>
     {% else %}
         {% for s in server %}
-            <h2>{{s.name}}</h2>
+            <h2><a href="/server/{{s.id}}">{{s.name}}</a></h2>
             <p>{{s.about}}</p>
             <p>
                 <a href="/remove_server/{{s.id}}">remove</a>

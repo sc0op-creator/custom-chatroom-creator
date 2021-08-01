@@ -31,6 +31,7 @@ class Channel(db.Model):
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer)
     channel_id = db.Column(db.Integer)
     message = db.Column(db.String(120))
     messenger = db.Column(db.String(120))
@@ -94,9 +95,20 @@ def add_server():
 @login_required
 def remove_server(id):
     server = Server.query.filter_by(id=id).first()
-    db.session.delete(server)
-    db.session.commit()
-    return redirect(url_for('home'))
+    channel = Channel.query.filter_by(server_id=id).all()
+    message = Message.query.filter_by(server_id=id).all()
+    if server:
+        db.session.delete(server)
+        db.session.commit()
+        for c in channel:
+            db.session.delete(c)
+            db.session.commit()
+        for m in message:
+            db.session.delete(m)
+            db.session.commit()
+        return redirect(url_for('home'))
+    else:
+        return 'Server not found'
 
 @app.route('/server/<int:id>')
 @login_required
@@ -143,7 +155,7 @@ def add_message(server_id, channel_id):
     data = request.get_json()
     message = data['message']
     messenger = data['username']
-    new = Message(channel_id = channel_id , message=message, messenger=messenger)
+    new = Message(channel_id = channel_id, server_id=server_id , message=message, messenger=messenger)
     db.session.add(new)
     db.session.commit()
     return redirect(url_for('channel', server_id=server_id, channel_id=channel_id))

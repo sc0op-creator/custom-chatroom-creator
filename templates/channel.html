@@ -20,8 +20,7 @@
     {% else %}
     <ul>
       {% for message in messages %}
-      <li>{{message.messenger}}</li>
-      <li>{{message.message}}</li>
+      <li>{{message.messenger}} {{message.message}}</li>
       {% endfor %}
     </ul>
     {% endif %}
